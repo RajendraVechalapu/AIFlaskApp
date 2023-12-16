@@ -20,8 +20,11 @@ Create a virtual environment to deploy in Azure
 In the same directory run the following commands to create a virtual environment to be able to integrate with Azure:
 
 python3 -m venv venv
-venv\Scripts\Activate pr
+venv\Scripts\Activate or
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ export FLASK_APP=app.py   or in windows $env:FLASK_APP = "app.py"
 $ flask run
+
+$env:FLASK_APP = "app.py"
+flask run
