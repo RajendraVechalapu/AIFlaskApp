@@ -1,27 +1,24 @@
-from flask import Flask, request, jsonify
-from transformers import pipeline
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Choose a pre-trained model for text generation
-text_generator = pipeline("text-generation", model="distilbert-base-uncased")
-
 @app.route('/')
-def hello_world():
-    return 'ఓం నమో విఘ్నేశ్వరాయ నమః'
+def index():
+    return render_template('index.html')
 
-@app.route('/generate_caption', methods=['POST'])
-def generate_caption():
-    # Get the image file from the request
-    image = request.files['image']
+@app.route('/upload', methods=['POST'])
+def upload():
+    if 'file' not in request.files:
+        return "No file part"
 
-    # Read the image data
-    image_data = image.read()
+    file = request.files['file']
 
-    # Generate a caption using the pre-trained model
-    generated_caption = text_generator("a description of the image", max_length=50, num_return_sequences=1)[0]['generated_text'].strip()
+    if file.filename == '':
+        return "No selected file"
 
-    return jsonify({'generated_caption': generated_caption})
+    content = file.read().decode('utf-8')
+
+    return render_template('index.html', content=content)
 
 if __name__ == '__main__':
     app.run(debug=True)
