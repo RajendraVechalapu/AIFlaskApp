@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text File Upload</title>
+    <title>Token Counter</title>
 </head>
 <body>
-    <h1>Text File Upload</h1>
-    
+    <h1>Token Counter</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".txt" required>
-        <button type="submit">Upload</button>
+        <label for="file">Upload File:</label>
+        <input type="file" name="file" id="file"><br>
+        <label for="free_text">Enter Free Text:</label>
+        <input type="text" name="free_text" id="free_text" value="{{ content }}"><br>
+        <input type="submit" value="Submit">
     </form>
-
     {% if content %}
-        <h2>File Content:</h2>
-        <pre>{{ content }}</pre>
+        <p>Input Text: {{ content }}</p>
+        {% if token_count is not none %}
+            <p>Number of Tokens: {{ token_count }}</p>
+        {% endif %}
     {% endif %}
 </body>
 </html>
