@@ -3,34 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment Analysis</title>
+    <title>Text Summarization</title>
 </head>
 <body>
-    <h1>Sentiment Analysis</h1>
+    <h1>Text Summarization</h1>
     
-    <form action="/analyze_sentiment" method="post">
-        <label for="text">Enter text:</label>
-        <textarea name="text" rows="4" cols="50" required></textarea>
-        <br>
-        <button type="submit">Analyze Sentiment</button>
+    <form method="post" action="/summarize_text">
+        <label for="text">Input Text:</label><br>
+        <textarea id="text" name="text" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Summarize">
     </form>
 
-    {% if sentiment_result %}
-        <h2>Analysis Result:</h2>
-        {% for sentiment in sentiment_result %}
-            <div>
-                <p><strong>Label:</strong> {{ sentiment['label'] }}</p>
-                <p><strong>Score:</strong> {{ (sentiment['score'] * 100) | round(2) }}%</p>
-                {% if sentiment['label'] == 'positive' %}
-                    😊 Positive
-                {% elif sentiment['label'] == 'neutral' %}
-                    😐 Neutral
-                {% elif sentiment['label'] == 'negative' %}
-                    😞 Negative
-                {% endif %}
-            </div>
-            <hr>
-        {% endfor %}
+    {% if summary_result %}
+        <h2>Summary:</h2>
+        <p>{{ summary_result }}</p>
     {% endif %}
 </body>
 </html>
