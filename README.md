@@ -1,8 +1,8 @@
 Test and Demo
 
 #Terminal
-python -m venv venv
-.\venv\Scripts\activate
+python -m venv rajenv
+.\rajenv\Scripts\activate
 pip install streamlit
 pip install -r requirements.txt
 
