@@ -1,5 +1,5 @@
 import re
-import openai  # Make sure to install the OpenAI library
+#import openai  # Make sure to install the OpenAI library
 import requests
 import numpy as np
 #import nltk
@@ -39,22 +39,23 @@ def summarizeTextHuggingFace(text, max_summary_length):
         print(f"Error in summarization request: {e}")
         return None  # Return None in case of an error
 
-def summarizeTextOpenAI(text, max_summary_length):
-    # Use OpenAI API
-    openai.api_key = OPENAI_API_KEY
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=text,
-        max_tokens=max_summary_length
-    )
-    summary = response.choices[0].text.strip()
-    return summary
+# def summarizeTextOpenAI(text, max_summary_length):
+#     # Use OpenAI API
+#     openai.api_key = OPENAI_API_KEY
+#     response = openai.Completion.create(
+#         engine="text-davinci-003",
+#         prompt=text,
+#         max_tokens=max_summary_length
+#     )
+#     summary = response.choices[0].text.strip()
+#     return summary
 
 def summarizeText(text, max_summary_length):
     if SUMMARIZATION_METHOD == "HUGGING_FACE":
         return summarizeTextHuggingFace(text, max_summary_length)
     elif SUMMARIZATION_METHOD == "OPENAI":
-        return summarizeTextOpenAI(text, max_summary_length)
+        return ""
+        #return summarizeTextOpenAI(text, max_summary_length)
     else:
         # Use the existing local model
         return summarizeTextHuggingFace(text, max_summary_length)  # You can adjust this if needed
@@ -78,14 +79,14 @@ def summarizeShort(text):
             return None  # Return None in case of an error
     else:
         # Use the existing local model
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=text,
-            max_tokens=20,
-            temperature=0.7  # Adjust temperature as needed
-        )
-        predicted_title = response.choices[0].text.strip()
-        return predicted_title
+        # response = openai.Completion.create(
+        #     engine="text-davinci-003",
+        #     prompt=text,
+        #     max_tokens=20,
+        #     temperature=0.7  # Adjust temperature as needed
+        # )
+        # predicted_title = response.choices[0].text.strip()
+        return "" # predicted_title
 
 def count_tokens(sentence_list):
     total_tokens = 0

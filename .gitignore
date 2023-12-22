@@ -1,6 +1,6 @@
 # Virtual environment
-venv/
-env/
+rajenv/
+rajenv/
 __pycache__/
 *.pyc
 *.pyo
