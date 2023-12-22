@@ -2,10 +2,10 @@ import re
 import openai  # Make sure to install the OpenAI library
 import requests
 import numpy as np
-import nltk
-from nltk.tokenize import sent_tokenize
+#import nltk
+#from nltk.tokenize import sent_tokenize
 
-nltk.download('punkt')
+#nltk.download('punkt')
 
 # Global Constants
 BART_LARGE_CNN_MODEL_NAME = "facebook/bart-large-cnn"
@@ -17,10 +17,10 @@ SUMMARIZATION_METHOD = "HUGGING_FACE"  # Choose from "OPENAI", "HUGGING_FACE", o
 # OpenAI API key (replace with your actual OpenAI API key)
 OPENAI_API_KEY = "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"
 
-def segment_sentences_with_punkt(text):
-    # Use NLTK's punkt tokenizer for sentence segmentation
-    sentences = sent_tokenize(text)
-    return sentences
+# def segment_sentences_with_punkt(text):
+#     # Use NLTK's punkt tokenizer for sentence segmentation
+#     sentences = sent_tokenize(text)
+#     return sentences
 
 def summarizeTextHuggingFace(text, max_summary_length):
     # Use Hugging Face model
