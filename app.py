@@ -12,14 +12,14 @@ from bs4 import BeautifulSoup
 import validators
 import fitz
 import requests
-import torch
+#import torch
 import chardet
 import spacy
 #import streamlit as st
 from model import *
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Set the maximum file size to 32 MB (adjust as needed)
+#app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Set the maximum file size to 32 MB (adjust as needed)
 
 # Initialize presentation globally
 presentation = Presentation()
@@ -30,6 +30,18 @@ folder_path = "docs"  # Assuming "docs" is in the current working directory
 # Call the function to delete old files
 #delete_old_files(folder_path)
 
+def process_text_and_display(piece_text, max_summary_length):
+    summary = summarizeText(piece_text, max_summary_length)
+    title = summarizeShort(piece_text)
+
+    # Use spaCy for sentence tokenization
+    # nlp = spacy.load("en_core_web_sm")
+    # sentences = [sentence.text.strip() for sentence in nlp(summary).sents]
+    #sentences = segment_sentences_with_punkt(summary)
+    sentences="rajendra simhadri"
+
+    add_slide(presentation, title, sentences)
+    
 def delete_old_files(folder_path, time_threshold_seconds=120):
     current_time = datetime.now()
 
@@ -72,16 +84,7 @@ def add_slide(prs, title, sentences):
         # Add an empty line after each sentence
         content_frame.add_paragraph().space_after = Pt(5)
 
-def process_text_and_display(piece_text, max_summary_length):
-    summary = summarizeText(piece_text, max_summary_length)
-    title = summarizeShort(piece_text)
 
-    # Use spaCy for sentence tokenization
-    # nlp = spacy.load("en_core_web_sm")
-    # sentences = [sentence.text.strip() for sentence in nlp(summary).sents]
-    sentences = segment_sentences_with_punkt(summary)
-
-    add_slide(presentation, title, sentences)
 
 def get_pptx_download_link(file_path):
     with open(file_path, 'rb') as f:
