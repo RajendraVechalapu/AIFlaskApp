@@ -1,26 +1,9 @@
 # Virtual environment
-# venv/
-# env/
-# __pycache__/
-# *.pyc
-# *.pyo
-# *.pyd
-# .pytest_cache/
-# .vscode/
-# .gitignore
-
-# Virtual environment
 venv/
-
-# Compiled Python files
+env/
 __pycache__/
-
-# Logs
-*.log
-
-# IDE/Editor files
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
 .vscode/
-.idea/
-
-# Local configuration
-*.venv
