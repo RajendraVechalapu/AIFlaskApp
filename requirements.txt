@@ -1,5 +1,4 @@
 Flask==2.3.3
-Flask>=2.3.3
 Werkzeug>=2.3.7
 MarkupSafe>=2.1.1
 requests>=2.26.0
@@ -10,6 +9,7 @@ PyPDF2>=1.26.0
 python-pptx>=0.6.19
 validators>=0.18.2
 tools>=0.1.0
+#PyMuPDF
 
 # Uncomment the following line if you need en_core_web_sm with version 3.1.0
 # https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0/en_core_web_sm-3.1.0.tar.gz
