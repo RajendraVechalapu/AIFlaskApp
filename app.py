@@ -22,10 +22,6 @@ app = Flask(__name__)
 #app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Set the maximum file size to 32 MB (adjust as needed)
 
 # Initialize presentation globally
-presentation = Presentation()
-
-# Specify the folder path where the files are located
-folder_path = "docs"  # Assuming "docs" is in the current working directory
 
 # Call the function to delete old files
 #delete_old_files(folder_path)
@@ -40,7 +36,6 @@ def process_text_and_display(piece_text, max_summary_length):
     #sentences = segment_sentences_with_punkt(summary)
     sentences="rajendra simhadri"
 
-    add_slide(presentation, title, sentences)
     
 def delete_old_files(folder_path, time_threshold_seconds=120):
     current_time = datetime.now()
@@ -159,31 +154,16 @@ def generate_summary():
 
         if url_input:
             # Call the function to delete old files
-            delete_old_files(folder_path)
 
-            result = process_url(url_input, max_summary_length, max_tokens)  # Pass max_tokens
-            if result is not None:
-                title = result['title']
-                web_text = result['cleaned_text']
-                nested_sentences = create_nested_sentences(web_text, token_max_length=max_tokens)
+            
 
-                for idx, nested in enumerate(nested_sentences):
-                    concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
-
-                timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-                pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
-                pptx_filepath = os.path.join("docs", pptx_filename)
-                presentation.save(pptx_filepath)
-
-                return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
+            return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
 
     elif input_choice == "Upload File":
         uploaded_file = request.files['uploaded_file']
 
         if uploaded_file:
             # Call the function to delete old files
-            delete_old_files(folder_path)
 
             file_bytes = uploaded_file.read()
             file_extension = os.path.splitext(uploaded_file.filename)[-1].lower()
@@ -218,7 +198,6 @@ def generate_summary():
             timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
             pptx_filepath = os.path.join("docs", pptx_filename)
-            presentation.save(pptx_filepath)
 
             return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
 
@@ -227,7 +206,6 @@ def generate_summary():
 
         if pasted_text:
             # Call the function to delete old files
-            delete_old_files(folder_path)
 
             nested_sentences = create_nested_sentences(pasted_text, token_max_length=max_tokens)
 
@@ -238,7 +216,6 @@ def generate_summary():
             timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
             pptx_filepath = os.path.join("docs", pptx_filename)
-            presentation.save(pptx_filepath)
 
             return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
 
