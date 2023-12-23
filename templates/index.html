@@ -1,61 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Summarization</title>
+    <title>Chat PDF Summary</title>
 </head>
 <body>
-    <h1>Text Summarization</h1>
+    <h1>PDF Summary</h1>
     
-    <form method="post" action="/generate_summary" enctype="multipart/form-data"> <!-- Added enctype attribute -->
-        <label for="max_summary_length">Choose Maximum Summary Length:</label>
-        <input type="range" id="max_summary_length" name="max_summary_length" min="300" max="500" step="100" value="400">
+    <form action="/chatpdf" method="post" enctype="multipart/form-data">
+        <label for="pdf_file">Upload PDF file:</label>
+        <input type="file" name="file" id="pdf_file" accept=".pdf" required>
         <br>
-        <label for="input_choice">Choose Input Method:</label>
-        <select id="input_choice" name="input_choice">
-            <option value="Website URL">Website URL</option>
-            <option value="Upload File">Upload File</option>
-            <option value="Paste Text">Paste Text</option>
-        </select>
-        <br>
-
-        <div id="url_input_div" style="display:none;">
-            <label for="url_input">Enter a Website URL:</label>
-            <input type="text" id="url_input" name="url_input">
-        </div>
-
-        <div id="upload_file_div" style="display:none;">
-            <label for="uploaded_file">Upload a PDF, DOCX, or TXT File:</label> <!-- Updated label -->
-            <input type="file" id="uploaded_file" name="uploaded_file" accept=".pdf, .docx, .txt">
-        </div>
-
-        <div id="pasted_text_div" style="display:none;">
-            <label for="pasted_text">Paste your text here:</label>
-            <textarea id="pasted_text" name="pasted_text" rows="4"></textarea>
-        </div>
-
+        <label for="message">Optional message:</label>
+        <input type="text" name="message" id="message">
         <br>
         <button type="submit">Generate Summary</button>
     </form>
-</body>
-<script>
-    document.getElementById('input_choice').addEventListener('change', function () {
-        var choice = this.value;
 
-        if (choice === 'Website URL') {
-            document.getElementById('url_input_div').style.display = 'block';
-            document.getElementById('upload_file_div').style.display = 'none';
-            document.getElementById('pasted_text_div').style.display = 'none';
-        } else if (choice === 'Upload File') {
-            document.getElementById('url_input_div').style.display = 'none';
-            document.getElementById('upload_file_div').style.display = 'block';
-            document.getElementById('pasted_text_div').style.display = 'none';
-        } else if (choice === 'Paste Text') {
-            document.getElementById('url_input_div').style.display = 'none';
-            document.getElementById('upload_file_div').style.display = 'none';
-            document.getElementById('pasted_text_div').style.display = 'block';
-        }
-    });
-</script>
+    {% if pages %}
+        {% for page in pages %}
+            <h2>Page {{ page.page_number }}:</h2>
+            <p>{{ page.text }}</p>
+            <h3>Summary:</h3>
+            <p>{{ page.summary }}</p>
+        {% endfor %}
+    {% else %}
+        <p>No data available.</p>
+    {% endif %}
+</body>
 </html>

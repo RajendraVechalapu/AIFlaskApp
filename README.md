@@ -3,14 +3,16 @@ Test and Demo
 #Terminal
 python -m venv rajenv
 .\rajenv\Scripts\activate
-pip install streamlit
-pip install -r requirements.txt
+pip freeze > requirements.txt
 
-pip install spacy
-python -m spacy download en_core_web_sm
+#pip install streamlit
+#pip install -r requirements.txt
+
+#pip install spacy
+#python -m spacy download en_core_web_sm
 
 
-streamlit run calculator_app.py
+#streamlit run calculator_app.py
 
 #to uninstall all pip from system
 pip freeze | ForEach-Object { pip uninstall -y $_.split('==')[0] }
