@@ -1,4 +1,20 @@
-from flask import Flask
+from flask import Flask, render_template, request
+import os
+from datetime import datetime, timedelta
+from io import BytesIO
+import base64
+from docx import Document
+from pptx.util import Pt, Inches
+from pptx import Presentation
+from pptx.dml.color import RGBColor
+#from PyPDF2 import PdfReader
+from bs4 import BeautifulSoup
+import validators
+#import fitz
+import requests
+#import torch
+#import chardet
+import spacy
 
 app = Flask(__name__)
 
