@@ -12,9 +12,9 @@ from bs4 import BeautifulSoup
 import validators
 #import fitz
 import requests
-#import torch
 #import chardet
 import spacy
+from model import *
 
 app = Flask(__name__)
 
