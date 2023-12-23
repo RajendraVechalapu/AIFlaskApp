@@ -1,0 +1,32 @@
+fastapi==0.79.0  # Updated for Python 3.12 compatibility
+uvicorn==0.17.6  # Updated for Python 3.12 compatibility
+Jinja2==3.1.2  # Latest version compatible with Python 3.12
+python-docx==0.8.11  # Confirmed compatible with Python 3.12
+requests==2.28.1  # Latest version compatible with Python 3.12
+spacy==3.4.5  # Latest version compatible with Python 3.12
+beautifulsoup4==4.11.1  # Latest version compatible with Python 3.12
+validators==0.19.0  # Latest version compatible with Python 3.12
+
+# PyPDF2 is commented as it's not used in the FastAPI code
+# PyPDF2==1.26.0
+# tools is commented as it's not clear which package it refers to
+# tools==0.1.0
+# Uncomment the following line if you need en_core_web_sm with version 3.1.0
+# https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.1.0/en_core_web_sm-3.1.0.tar.gz
+# spacy[transformers]==3.4.4
+# Uncomment the following lines if you need additional libraries
+# datetime is commented as it's a built-in module
+# datetime==4.3
+# time is commented as it's a built-in module
+# time==1.0
+# base64 is commented as it's a built-in module
+# base64==2.1.0
+# io is commented as it's a built-in module
+# io==0.0.1
+# chardet is commented as it's not used in the FastAPI code
+# chardet==4.0.0
+
+# Uncomment the following lines if you need transformers, torch, and tokenizers
+# transformers==4.10.0
+# torch==1.10.0
+# tokenizers==0.10.0
