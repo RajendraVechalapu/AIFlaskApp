@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Text Summarizer</title>
+    <title>AI Text Summarizer</title>
     <style>
         body {
             background-color: #001f3f;
@@ -21,13 +21,43 @@
             border: none;
             cursor: pointer;
         }
+        #summary {
+            margin-top: 20px;
+            white-space: pre-line;
+        }
     </style>
 </head>
 <body>
     <h1>Text Summarizer</h1>
-    <form action="/summarize" method="post">
-        <textarea name="text" placeholder="Enter text to summarize"></textarea><br>
-        <button type="submit">Summarize</button>
+    <form id="summarizeForm">
+        <textarea id="text" name="text" placeholder="Enter text to summarize"></textarea><br>
+        <button type="button" onclick="summarize()">Summarize</button>
     </form>
+    <div id="loading" style="display: none;">Please wait...</div>
+    <div id="summary"></div>
+
+    <script>
+        function summarize() {
+            var text = document.getElementById("text").value;
+            var form = new FormData();
+            form.append("text", text);
+
+            document.getElementById("loading").style.display = "block";
+
+            fetch("/summarize", {
+                method: "POST",
+                body: form
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById("summary").innerHTML = data;
+                document.getElementById("loading").style.display = "none";
+            })
+            .catch(error => {
+                document.getElementById("summary").innerHTML = "Error: Unable to summarize.";
+                document.getElementById("loading").style.display = "none";
+            });
+        }
+    </script>
 </body>
 </html>

@@ -22,6 +22,6 @@ def generate_summary(text: str = Form(...)):
             formatted_summary = f"{summary_text.replace('.', '.\n')}"
             return HTMLResponse(content=formatted_summary, status_code=200)
         else:
-            return {"error": f"Error: Unable to summarize. Status code {response.status_code}"}
+            return HTMLResponse(content=f"Error: Unable to summarize. Status code {response.status_code}", status_code=400)
     except Exception as e:
-        return {"error": str(e)}
+        return HTMLResponse(content=f"Error: {str(e)}", status_code=500)
