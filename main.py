@@ -26,7 +26,7 @@ max_tokens = 900
 min_tokens = 10
 
 # Initialize presentation globally
-presentation = Presentation()
+#presentation = Presentation()
 folder_path = "docs"
 
 def process_text_and_display(piece_text, max_summary_length):
@@ -167,7 +167,14 @@ async def generate_summary(
     pasted_text: str = Form(...),
 ):
     try:
+
+        # Initialize presentation globally
+        global presentation
+        
         if input_choice == "Upload File":
+
+            # Create a new presentation only if an uploaded file is present
+            presentation = Presentation()
             # Call the function to delete old files
             delete_old_files(folder_path)
 
@@ -211,6 +218,10 @@ async def generate_summary(
             )
 
         elif input_choice == "Paste Text":
+
+            # Create a new presentation only if an uploaded file is present
+            presentation = Presentation()
+
             # Call the function to delete old files
             delete_old_files(folder_path)
 
