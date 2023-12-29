@@ -7,11 +7,14 @@
     <h1>Text Summarizer</h1>
     <form action="/generate_summary" method="post">
         <label for="text">Enter text:</label>
-        <textarea name="text" rows="4" cols="50" required></textarea>
+        <textarea name="text" rows="4" cols="50" required>{{ text }}</textarea>
         <br>
         <input type="submit" value="Generate Summary">
     </form>
-    {% if summary %}
+    {% if error %}
+    <h2>Error:</h2>
+    <p>{{ error }}</p>
+    {% elif summary %}
     <h2>Summary:</h2>
     <p>{{ summary }}</p>
     {% endif %}
