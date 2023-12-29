@@ -2,21 +2,32 @@
 <html>
 <head>
     <title>Text Summarizer</title>
+    <style>
+        body {
+            background-color: #001f3f;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 50px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #0074cc;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Text Summarizer</h1>
-    <form action="/generate_summary" method="post">
-        <label for="text">Enter text:</label>
-        <textarea name="text" rows="4" cols="50" required>{{ text }}</textarea>
-        <br>
-        <input type="submit" value="Generate Summary">
+    <form action="/summarize" method="post">
+        <textarea name="text" placeholder="Enter text to summarize"></textarea><br>
+        <button type="submit">Summarize</button>
     </form>
-    {% if error %}
-    <h2>Error:</h2>
-    <p>{{ error }}</p>
-    {% elif summary %}
-    <h2>Summary:</h2>
-    <p>{{ summary }}</p>
-    {% endif %}
 </body>
 </html>
