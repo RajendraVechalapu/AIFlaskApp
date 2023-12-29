@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'raisummarizer'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A336330A831A429E9302EE3DA5961943 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FCB5BCCB01AF4E5098DC6B95A85A651B }}
