@@ -1,7 +1,7 @@
 import re
 #import openai  # Make sure to install the OpenAI library
 import requests
-import numpy as np
+#import numpy as np
 #import nltk
 #from nltk.tokenize import sent_tokenize
 
