@@ -1,28 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Text Summarizer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Text Summarizer(Trial)</title>
     <style>
         body {
-            background-color: #001f3f;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 50px;
+            text-align: center;
+        }
+        h1 {
+            color: #3498db;
         }
         textarea {
             width: 100%;
             height: 200px;
-            margin-bottom: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            font-size: 16px;
+            resize: none;
         }
         button {
-            padding: 10px;
-            background-color: #0074cc;
+            padding: 10px 20px;
+            background-color: #3498db;
             color: #ffffff;
             border: none;
             cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        #loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
         }
         #summary {
             margin-top: 20px;
+            font-size: 16px;
             white-space: pre-line;
         }
     </style>
@@ -33,7 +53,7 @@
         <textarea id="text" name="text" placeholder="Enter text to summarize"></textarea><br>
         <button type="button" onclick="summarize()">Summarize</button>
     </form>
-    <div id="loading" style="display: none;">Please wait...</div>
+    <div id="loading">Please wait...</div>
     <div id="summary"></div>
 
     <script>
