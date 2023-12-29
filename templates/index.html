@@ -1,40 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Summary Generator</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        #loadingMessage {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to Text Summary Generator</h1>
-    <form action="/generate_summary" method="post" enctype="multipart/form-data">
+    <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
         <label for="input_choice">Choose an input option:</label>
         <select id="input_choice" name="input_choice">
-            <option value="Upload File">Upload File</option>
             <option value="Paste Text">Paste Text</option>
+            <option value="Upload File">Upload File</option>
         </select>
         <br>
 
-        <!-- Upload File Section -->
-        <div id="upload_file_section" style="display:none;">
-            <label for="uploaded_file">Upload a file:</label>
-            <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
+        <!-- Paste Text Section -->
+        <div id="paste_text_section">
+            <label for="pasted_text">Paste your text:</label>
+            <textarea name="pasted_text" rows="4" cols="50"></textarea>
             <br>
         </div>
 
-        <!-- Paste Text Section -->
-        <div id="paste_text_section" style="display:none;">
-            <label for="pasted_text">Paste your text:</label>
-            <textarea name="pasted_text" rows="4" cols="50"></textarea>
+        <!-- Upload File Section -->
+        <div id="upload_file_section" class="hidden">
+            <label for="uploaded_file">Upload a file:</label>
+            <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
             <br>
         </div>
 
         <!-- Other form fields and input elements can be added here -->
 
         <label for="max_summary_length">Maximum Summary Length:</label>
-        <input type="number" name="max_summary_length" required>
+        <input type="number" name="max_summary_length" value="500" required>
         <br>
 
         <button type="submit">Generate Summary</button>
     </form>
+
+    <div id="loadingMessage">Please wait...</div>
+    <div id="resultSection" class="hidden">
+        <!-- Display result here -->
+    </div>
 
     <script>
         document.getElementById('input_choice').addEventListener('change', function () {
@@ -42,12 +58,41 @@
             var pasteTextSection = document.getElementById('paste_text_section');
 
             if (this.value === 'Upload File') {
-                uploadFileSection.style.display = 'block';
-                pasteTextSection.style.display = 'none';
+                uploadFileSection.classList.remove('hidden');
+                pasteTextSection.classList.add('hidden');
             } else if (this.value === 'Paste Text') {
-                uploadFileSection.style.display = 'none';
-                pasteTextSection.style.display = 'block';
+                uploadFileSection.classList.add('hidden');
+                pasteTextSection.classList.remove('hidden');
             }
+        });
+
+        document.getElementById('summaryForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Display "Please wait..." message
+            document.getElementById('loadingMessage').style.display = 'block';
+
+            // Prepare form data
+            var formData = new FormData(this);
+
+            // Make AJAX/fetch request
+            fetch(this.action, {
+                method: this.method,
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Hide "Please wait..." message
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                // Display result in the 'resultSection' div
+                document.getElementById('resultSection').innerHTML = data;
+                document.getElementById('resultSection').classList.remove('hidden');
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error:', error);
+            });
         });
     </script>
 </body>
