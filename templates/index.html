@@ -1,30 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat PDF Summary</title>
+    <title>Text Summarizer</title>
 </head>
 <body>
-    <h1>PDF Summary</h1>
-    
-    <form action="/chatpdf" method="post" enctype="multipart/form-data">
-        <label for="pdf_file">Upload PDF file:</label>
-        <input type="file" name="file" id="pdf_file" accept=".pdf" required>
+    <h1>Text Summarizer</h1>
+    <form action="/generate_summary" method="post">
+        <label for="text">Enter text:</label>
+        <textarea name="text" rows="4" cols="50" required></textarea>
         <br>
-        <label for="message">Optional message:</label>
-        <input type="text" name="message" id="message">
-        <br>
-        <button type="submit">Generate Summary</button>
+        <input type="submit" value="Generate Summary">
     </form>
-
-    {% if pages %}
-        {% for page in pages %}
-            <h2>Page {{ page.page_number }}:</h2>
-            <p>{{ page.text }}</p>
-            <h3>Summary:</h3>
-            <p>{{ page.summary }}</p>
-        {% endfor %}
-    {% else %}
-        <p>No data available.</p>
+    {% if summary %}
+    <h2>Summary:</h2>
+    <p>{{ summary }}</p>
     {% endif %}
 </body>
 </html>
