@@ -1,9 +1,5 @@
 Test and Demo
-#for fastapi
 #uvicorn main:app --host 127.0.0.1 --port 8000 --reload
-
-#for flask
-#python -m flask run --host=127.0.0.1 --port=8000 --reload
 
 #Terminal
 python -m venv rajenv
@@ -32,8 +28,6 @@ $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ export FLASK_APP=app.py   or in windows $env:FLASK_APP = "app.py"
 $ flask run
-
-
 
 $env:FLASK_APP = "app.py"
 flask run
