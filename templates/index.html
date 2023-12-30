@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Text Summary Generator</title>
+<<<<<<< HEAD
 </head>
 <body>
     <h1>Text Summary Generator</h1>
@@ -14,6 +15,24 @@
         <label for="input_choice">Select Input Type:</label>
         <select name="input_choice" required>
             <option value="Website URL">Website URL</option>
+=======
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        #loadingMessage {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Text Summary Generator</h1>
+    <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
+        <label for="input_choice">Choose an input option:</label>
+        <select id="input_choice" name="input_choice">
+            <option value="Paste Text">Paste Text</option>
+>>>>>>> parent of 2807fdc (Merge pull request #6 from RajendraVechalapu/fasiapi---changes)
             <option value="Upload File">Upload File</option>
             <option value="Paste Text">Paste Text</option>
         </select><br>
