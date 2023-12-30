@@ -3,22 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Summary Generator</title>
-<<<<<<< HEAD
-<<<<<<< HEAD
-</head>
-<body>
-    <h1>Text Summary Generator</h1>
-    <form action="/generate_summary" method="post" enctype="multipart/form-data">
-        <label for="max_summary_length">Max Summary Length:</label>
-        <input type="number" name="max_summary_length" required><br>
-
-        <label for="input_choice">Select Input Type:</label>
-        <select name="input_choice" required>
-            <option value="Website URL">Website URL</option>
-=======
-=======
->>>>>>> parent of 2807fdc (Merge pull request #6 from RajendraVechalapu/fasiapi---changes)
+    <title>AI Text Summary Generator</title>
     <style>
         .hidden {
             display: none;
@@ -30,55 +15,85 @@
     </style>
 </head>
 <body>
-    <h1>Welcome to Text Summary Generator</h1>
+    <h1>Welcome to AI Text Summary Generator</h1>
     <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
         <label for="input_choice">Choose an input option:</label>
         <select id="input_choice" name="input_choice">
             <option value="Paste Text">Paste Text</option>
->>>>>>> parent of 2807fdc (Merge pull request #6 from RajendraVechalapu/fasiapi---changes)
             <option value="Upload File">Upload File</option>
-            <option value="Paste Text">Paste Text</option>
-        </select><br>
+        </select>
+        <br>
 
-        <div id="url_input_div" style="display:none;">
-            <label for="url_input">Website URL:</label>
-            <input type="url" name="url_input" id="url_input"><br>
+        <!-- Paste Text Section -->
+        <div id="paste_text_section">
+            <label for="pasted_text">Paste your text:</label>
+            <textarea name="pasted_text" rows="4" cols="50"></textarea>
+            <br>
         </div>
 
-        <div id="file_input_div" style="display:none;">
-            <label for="uploaded_file">Upload File:</label>
-            <input type="file" name="uploaded_file" id="uploaded_file"><br>
+        <!-- Upload File Section -->
+        <div id="upload_file_section" class="hidden">
+            <label for="uploaded_file">Upload a file:</label>
+            <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
+            <br>
         </div>
 
-        <div id="text_input_div" style="display:none;">
-            <label for="pasted_text">Paste Text:</label><br>
-            <textarea name="pasted_text" rows="4" cols="50"></textarea><br>
-        </div>
+        <!-- Other form fields and input elements can be added here -->
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const inputChoice = document.querySelector('select[name="input_choice"]');
-                const urlInputDiv = document.getElementById('url_input_div');
-                const fileInputDiv = document.getElementById('file_input_div');
-                const textInputDiv = document.getElementById('text_input_div');
-
-                inputChoice.addEventListener('change', function() {
-                    urlInputDiv.style.display = 'none';
-                    fileInputDiv.style.display = 'none';
-                    textInputDiv.style.display = 'none';
-
-                    if (inputChoice.value === 'Website URL') {
-                        urlInputDiv.style.display = 'block';
-                    } else if (inputChoice.value === 'Upload File') {
-                        fileInputDiv.style.display = 'block';
-                    } else if (inputChoice.value === 'Paste Text') {
-                        textInputDiv.style.display = 'block';
-                    }
-                });
-            });
-        </script>
+        <label for="max_summary_length">Maximum Summary Length:</label>
+        <input type="number" name="max_summary_length" value="500" required>
+        <br>
 
         <button type="submit">Generate Summary</button>
     </form>
+
+    <div id="loadingMessage">Please wait...</div>
+    <div id="resultSection" class="hidden">
+        <!-- Display result here -->
+    </div>
+
+    <script>
+        document.getElementById('input_choice').addEventListener('change', function () {
+            var uploadFileSection = document.getElementById('upload_file_section');
+            var pasteTextSection = document.getElementById('paste_text_section');
+
+            if (this.value === 'Upload File') {
+                uploadFileSection.classList.remove('hidden');
+                pasteTextSection.classList.add('hidden');
+            } else if (this.value === 'Paste Text') {
+                uploadFileSection.classList.add('hidden');
+                pasteTextSection.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('summaryForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Display "Please wait..." message
+            document.getElementById('loadingMessage').style.display = 'block';
+
+            // Prepare form data
+            var formData = new FormData(this);
+
+            // Make AJAX/fetch request
+            fetch(this.action, {
+                method: this.method,
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                // Hide "Please wait..." message
+                document.getElementById('loadingMessage').style.display = 'none';
+
+                // Display result in the 'resultSection' div
+                document.getElementById('resultSection').innerHTML = data;
+                document.getElementById('resultSection').classList.remove('hidden');
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error:', error);
+            });
+        });
+    </script>
 </body>
 </html>
