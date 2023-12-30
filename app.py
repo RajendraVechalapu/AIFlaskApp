@@ -1,46 +1,36 @@
-from flask import Flask, render_template, request
-import os
+from flask import Flask, render_template, request, send_file
 from datetime import datetime, timedelta
-from io import BytesIO
 import base64
 from docx import Document
-from pptx.util import Pt, Inches
-from pptx import Presentation
-from pptx.dml.color import RGBColor
-from PyPDF2 import PdfReader
+from io import BytesIO
+import os
+from io import StringIO
+from datetime import datetime
+import io
+from flask import send_file
+#from flask_ngrok import run_with_ngrok
+import spacy
 from bs4 import BeautifulSoup
+from PyPDF2 import PdfReader
 import validators
 import fitz
 import requests
 #import torch
-#import chardet
-import spacy
+import re
+import chardet
+from pptx.dml.color import RGBColor
+from pptx.util import Pt, Inches
+from pptx import Presentation
+from pptx.util import Inches
+from flask import send_file
+
+# Import your functions from model.py
 from model import *
 
 app = Flask(__name__)
-#app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # Set the maximum file size to 32 MB (adjust as needed)
+#run_with_ngrok(app)  # Start ngrok when app is run
 
-# Initialize presentation globally
-presentation = Presentation()
-
-# Specify the folder path where the files are located
-folder_path = "docs"  # Assuming "docs" is in the current working directory
-
-# Call the function to delete old files
-#delete_old_files(folder_path)
-
-def process_text_and_display(piece_text, max_summary_length):
-    summary = summarizeText(piece_text, max_summary_length)
-    title = summarizeShort(piece_text)
-
-    # Use spaCy for sentence tokenization
-    # nlp = spacy.load("en_core_web_sm")
-    # sentences = [sentence.text.strip() for sentence in nlp(summary).sents]
-    #sentences = segment_sentences_with_punkt(summary)
-    sentences="rajendra simhadri"
-
-    add_slide(presentation, title, sentences)
-    
+# Function to delete files older than a specified time
 def delete_old_files(folder_path, time_threshold_seconds=120):
     current_time = datetime.now()
 
@@ -57,6 +47,14 @@ def delete_old_files(folder_path, time_threshold_seconds=120):
             # If the file is older than the threshold, delete it
             if time_difference.total_seconds() > time_threshold_seconds:
                 os.remove(file_path)
+
+# Function to generate a downloadable link for the PowerPoint presentation
+def get_pptx_download_link(file_path):
+    with open(file_path, 'rb') as f:
+        pptx_data = f.read()
+    encoded_pptx = base64.b64encode(pptx_data).decode()
+    href = f'<a href="data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,{encoded_pptx}" download="Text_Summary_Presentation.pptx">Download PowerPoint Presentation</a>'
+    return href
 
 def add_slide(prs, title, sentences):
     slide_layout = prs.slide_layouts[5]  # Use a blank slide layout
@@ -83,14 +81,21 @@ def add_slide(prs, title, sentences):
         # Add an empty line after each sentence
         content_frame.add_paragraph().space_after = Pt(5)
 
+def clean_text(web_text):
+    return ' '.join(line.strip() for line in web_text.splitlines() if line.strip())
 
+# Create PowerPoint presentation
+#presentation = Presentation()
 
-def get_pptx_download_link(file_path):
-    with open(file_path, 'rb') as f:
-        pptx_data = f.read()
-    encoded_pptx = base64.b64encode(pptx_data).decode()
-    href = f'<a href="data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,{encoded_pptx}" download="Text_Summary_Presentation.pptx">Download PowerPoint Presentation</a>'
-    return href
+def process_text_and_display(piece_text, max_summary_length, presentation):
+    summary = summarizeText(piece_text, max_summary_length)
+    title = summarizeShort(piece_text)
+
+    # Use spaCy for sentence tokenization
+    nlp = spacy.load("en_core_web_sm")
+    sentences = [sentence.text.strip() for sentence in nlp(summary).sents]
+
+    add_slide(presentation, title, sentences)
 
 def get_html_content(url):
     try:
@@ -98,9 +103,29 @@ def get_html_content(url):
         response.raise_for_status()  # Raises an HTTPError for bad responses
         return response.text
     except requests.exceptions.RequestException as e:
-        print(f"Error retrieving HTML content from URL: {url}\nError: {str(e)}")
         return None
-    
+
+def process_url(url, max_summary_length):
+    if not validators.url(url):
+        return None
+
+    html_content = get_html_content(url)
+
+    if html_content:
+        nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
+        soup = BeautifulSoup(html_content, "html.parser")
+        title = soup.title.string
+        web_text = soup.get_text()
+
+        return {
+            'url': url,
+            'title': title,
+            'cleaned_text': web_text
+        }
+
+    else:
+        return None
+
 def extract_page_pdf_text(file_bytes):
     doc = fitz.open("pdf", file_bytes)
     page_texts = []
@@ -120,28 +145,16 @@ def extract_text_from_docx(file_bytes):
 
     return text
 
-def process_url(url, max_summary_length, max_tokens):
-    if not validators.url(url):
-        st.error("Invalid URL. Please enter a valid URL.")
-        return None
+def clean_text_for_summarization(text):
+    cleaned_text = ' '.join(text.split())
+    return cleaned_text
 
-    html_content = get_html_content(url)
-
-    if html_content:
-        nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
-        soup = BeautifulSoup(html_content, "html.parser")
-        title = soup.title.string
-        web_text = soup.get_text()
-
-        nested_sentences = create_nested_sentences(web_text, token_max_length=max_tokens)
-
-        return {
-            'url': url,
-            'title': title,
-            'cleaned_text': web_text
-        }
+def extract_text_from_file(file_bytes, file_extension):
+    if file_extension == ".pdf":
+        return extract_page_pdf_text(file_bytes)
+    elif file_extension == ".docx":
+        return extract_text_from_docx(file_bytes)
     else:
-        st.error(f"Timeout occurred for URL: {url}. Skipping...")
         return None
 
 @app.route('/')
@@ -154,39 +167,41 @@ def generate_summary():
     input_choice = request.form['input_choice']
 
     if input_choice == "Website URL":
+
+        presentation = Presentation()
         url_input = request.form['url_input']
 
         if url_input:
             # Call the function to delete old files
-            delete_old_files(folder_path)
+            delete_old_files("docs")
 
-            result = process_url(url_input, max_summary_length, max_tokens)  # Pass max_tokens
+            result = process_url(url_input, max_summary_length)
             if result is not None:
                 title = result['title']
                 web_text = result['cleaned_text']
-                nested_sentences = create_nested_sentences(web_text, token_max_length=max_tokens)
+                nested_sentences = create_nested_sentences(web_text, token_max_length=900)
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
+                    process_text_and_display(concatenated_text, max_summary_length,presentation)
 
                 timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
                 pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
                 pptx_filepath = os.path.join("docs", pptx_filename)
                 presentation.save(pptx_filepath)
 
-                return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
-
+                return send_file(pptx_filepath, as_attachment=True)
     elif input_choice == "Upload File":
+
+        presentation = Presentation()
         uploaded_file = request.files['uploaded_file']
 
         if uploaded_file:
             # Call the function to delete old files
-            delete_old_files(folder_path)
+            delete_old_files("docs")
 
             file_bytes = uploaded_file.read()
             file_extension = os.path.splitext(uploaded_file.filename)[-1].lower()
-
 
             if file_extension == ".pdf":
                 page_texts = extract_page_pdf_text(file_bytes)
@@ -195,7 +210,7 @@ def generate_summary():
                     nested_sentences = create_nested_sentences(page_text, token_max_length=900)
                     for idx, nested in enumerate(nested_sentences):
                         concatenated_text = " ".join(nested)
-                        process_text_and_display(concatenated_text, max_summary_length)
+                        process_text_and_display(concatenated_text, max_summary_length,presentation)
 
             elif file_extension == ".docx":
                 page_text = extract_text_from_docx(file_bytes)
@@ -204,7 +219,7 @@ def generate_summary():
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
+                    process_text_and_display(concatenated_text, max_summary_length,presentation)
 
             elif file_extension == ".txt":
                 text = file_bytes.decode('utf-8')
@@ -212,36 +227,37 @@ def generate_summary():
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
+                    process_text_and_display(concatenated_text, max_summary_length,presentation)
 
             timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
             pptx_filepath = os.path.join("docs", pptx_filename)
             presentation.save(pptx_filepath)
 
-            return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
+            return send_file(pptx_filepath, as_attachment=True)
 
     elif input_choice == "Paste Text":
+
+        presentation = Presentation()
         pasted_text = request.form['pasted_text']
 
         if pasted_text:
             # Call the function to delete old files
-            delete_old_files(folder_path)
+            delete_old_files("docs")
 
-            nested_sentences = create_nested_sentences(pasted_text, token_max_length=max_tokens)
+            nested_sentences = create_nested_sentences(pasted_text, token_max_length=900)
 
             for idx, nested in enumerate(nested_sentences):
                 concatenated_text = " ".join(nested)
-                process_text_and_display(concatenated_text, max_summary_length)
+                process_text_and_display(concatenated_text, max_summary_length,presentation)
 
             timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
             pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
             pptx_filepath = os.path.join("docs", pptx_filename)
             presentation.save(pptx_filepath)
 
-            return render_template('result.html', download_link=get_pptx_download_link(pptx_filepath))
+            return send_file(pptx_filepath, as_attachment=True)
 
-    # Handle other cases or display an error message if necessary
     return "Invalid input choice or missing data."
 
 if __name__ == '__main__':
