@@ -19,6 +19,7 @@ import chardet
 import spacy
 from model import *
 
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
