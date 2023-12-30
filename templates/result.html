@@ -3,36 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Summary Result</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        h1 {
-            text-align: center;
-        }
-
-        .scrollable-container {
-            max-height: 400px; /* Set the maximum height for the scrollable container */
-            overflow-y: auto; /* Enable vertical scrolling */
-            border: 1px solid #ccc; /* Add a border for better visualization */
-            padding: 10px; /* Add some padding for better aesthetics */
-        }
-
-        button {
-            margin-top: 10px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-    </style>
+    <title>Text Summary Result</title>
 </head>
 <body>
-    <h1>Generated Summary</h1>
-    <div class="scrollable-container">
-        {{ concateddata | safe }}
-    </div>
-    <button onclick="window.print()">Print Summary</button>
+    {% if download_link %}
+        <h2>Text Summary Generated Successfully!</h2>
+        <p>{{ success_message }}</p>
+        <p>{{ concateddata }}</p>
+        <p>{{ download_link | safe }}</p>
+    {% else %}
+        <h2>Error Generating Text Summary</h2>
+        <p>{{ concateddata }}</p>
+    {% endif %}
 </body>
 </html>
