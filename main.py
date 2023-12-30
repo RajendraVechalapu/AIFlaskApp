@@ -15,7 +15,7 @@ import validators
 import fitz
 import requests
 #import torch
-#import chardet
+import chardet
 import spacy
 from model import *
 
@@ -27,17 +27,28 @@ min_tokens = 10
 
 # Initialize presentation globally
 #presentation = Presentation()
-folder_path = "docs"
+#folder_path = "docs"
 
 def process_text_and_display(piece_text, max_summary_length):
-    # Example: Summarize the piece_text and display it
+    
     summary = summarizeText(piece_text, max_summary_length)
+    
+    #st.write(f"\nSummary \n\n {summary}")
+    #formatted_summary = format_summary_with_numbers(summary)
+    
     title = summarizeShort(piece_text)
+    #st.write(f"Title ({title})")
+    # Use spaCy for sentence tokenization
+    
+    # Load the spaCy English model
+    nlp = spacy.load("en_core_web_sm")
+    sentences = [sentence.text.strip() for sentence in nlp(summary).sents]
 
-    # Example: Split the summary into sentences (replace this with your logic)
-    sentences = summary.split('.')
-
-    add_slide(presentation, title, sentences)
+    return sentences
+    # for sentence in sentences:
+    #     st.write(f"- {sentence}")
+        
+    #add_slide(presentation, title, sentences)
 
 
 def add_slide(prs, title, sentences):
@@ -109,38 +120,6 @@ def extract_text_from_docx(file_bytes):
 
     return text
 
-def process_url(url, max_summary_length, max_tokens):
-    try:
-        # Step 1: Validate the URL
-        if not validators.url(url):
-            # Handle the case of an invalid URL
-            return None
-
-        # Step 2: Retrieve HTML content from the URL
-        html_content = get_html_content(url)
-
-        if html_content:
-            # Step 3: Process the HTML content and extract relevant information
-            nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
-            soup = BeautifulSoup(html_content, "html.parser")
-            title = soup.title.string
-            web_text = soup.get_text()
-
-            # Example: Create nested sentences (replace this with your logic)
-            nested_sentences = create_nested_sentences(web_text, token_max_length=max_tokens)
-
-            return {
-                'url': url,
-                'title': title,
-                'cleaned_text': web_text
-            }
-        else:
-            # Handle the case of a timeout or error while retrieving HTML content
-            return None
-    except Exception as e:
-        # Handle other exceptions
-        print(f"Error processing URL: {str(e)}")
-        return None
 
 def get_html_content(url):
     try:
@@ -153,7 +132,8 @@ def get_html_content(url):
         print(f"Error retrieving HTML content from URL: {url}\nError: {str(e)}")
         return None
 
-# Routes
+
+
 @app.get('/')
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -162,83 +142,97 @@ def index(request: Request):
 async def generate_summary(
     request: Request,
     max_summary_length: int = Form(...),
-    input_choice: str = Form(...),
+    #input_choice: str = Form(...),
+    input_choice: str = Form(None),
     uploaded_file: UploadFile = File(...),
-    pasted_text: str = Form(...),
+    #pasted_text: str = Form(...),
+    pasted_text: str = Form(None),  # Make pasted_text optional
 ):
     try:
-
         # Initialize presentation globally
         global presentation
-        
+
         if input_choice == "Upload File":
-
-            # Create a new presentation only if an uploaded file is present
-            presentation = Presentation()
-            # Call the function to delete old files
-            delete_old_files(folder_path)
-
             file_bytes = await uploaded_file.read()
-
             file_extension = os.path.splitext(uploaded_file.filename)[-1].lower()
 
             if file_extension == ".pdf":
                 page_texts = extract_page_pdf_text(file_bytes)
 
+                concateddata = ""
                 for page_num, page_text in enumerate(page_texts, start=1):
                     nested_sentences = create_nested_sentences(page_text, token_max_length=900)
+                    concateddata += f"Page: {page_num}: <br><br>"
+
                     for idx, nested in enumerate(nested_sentences):
                         concatenated_text = " ".join(nested)
-                        process_text_and_display(concatenated_text, max_summary_length)
+                        sentences = process_text_and_display(concatenated_text, max_summary_length)
+
+                        for i, sentence in enumerate(sentences, start=1):
+                            concateddata += f"  {i}. {sentence}<br><br>"
 
             elif file_extension == ".docx":
+                # ... (similar logic for other file types)
                 page_text = extract_text_from_docx(file_bytes)
-
-                nested_sentences = create_nested_sentences(page_text, token_max_length=900)
+                nested_sentences = create_nested_sentences(page_text, token_max_length=max_tokens)
+                concateddata = ""
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
+                    sentences = process_text_and_display(concatenated_text, max_summary_length)
+
+                    # Accumulate sentences for each concatenated_text
+                    for i, sentence in enumerate(sentences, start=1):
+                        concateddata += f"{i}. {sentence}<br><br>"
+
+                # # Return a response indicating success
+                # return templates.TemplateResponse(
+                #     "result.html", {"request": request, "concateddata": concateddata, "success_message": "Content processed successfully"}
+                # )
+                # pass
 
             elif file_extension == ".txt":
-                text = file_bytes.decode('utf-8')
-                nested_sentences = create_nested_sentences(text, token_max_length=900)
+                    # Process TXT file
+                # Determine the file encoding (assuming UTF-8 if not specified)
+                file_encoding = chardet.detect(file_bytes)['encoding'] or 'utf-8'
+
+                text = file_bytes.decode(file_encoding)
+                #text = file_bytes.decode('utf-8')
+                nested_sentences = create_nested_sentences(text, token_max_length=max_tokens)
+                concateddata = ""
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    process_text_and_display(concatenated_text, max_summary_length)
+                    sentences = process_text_and_display(concatenated_text, max_summary_length)
 
-            timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
-            pptx_filepath = os.path.join("docs", pptx_filename)
-            presentation.save(pptx_filepath)
+                    # Accumulate sentences for each concatenated_text
+                    for i, sentence in enumerate(sentences, start=1):
+                        concateddata += f"{i}. {sentence}<br><br>"
 
-            return templates.TemplateResponse(
-                "result.html", {"request": request, "download_link": get_pptx_download_link(pptx_filepath)}
-            )
+                    # Return a response indicating success
+                # return templates.TemplateResponse(
+                #     "result.html", {"request": request, "concateddata": concateddata, "success_message": "Content processed successfully"}
+                # )
+        
+                # pass
 
         elif input_choice == "Paste Text":
-
-            # Create a new presentation only if an uploaded file is present
-            presentation = Presentation()
-
-            # Call the function to delete old files
-            delete_old_files(folder_path)
-
             nested_sentences = create_nested_sentences(pasted_text, token_max_length=max_tokens)
 
+            concateddata = ""
             for idx, nested in enumerate(nested_sentences):
                 concatenated_text = " ".join(nested)
-                process_text_and_display(concatenated_text, max_summary_length)
+                sentences = process_text_and_display(concatenated_text, max_summary_length)
 
-            timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-            pptx_filename = f"Text_Summary_Presentation_{timestamp}.pptx"
-            pptx_filepath = os.path.join("docs", pptx_filename)
-            presentation.save(pptx_filepath)
+                for i, sentence in enumerate(sentences, start=1):
+                    concateddata += f"  {i}. {sentence}<br><br>"
 
-            return templates.TemplateResponse(
-                "result.html", {"request": request, "download_link": get_pptx_download_link(pptx_filepath)}
-            )
+        return templates.TemplateResponse(
+            "result.html", {"request": request, "concateddata": concateddata, "success_message": "Content processed successfully"}
+        )
 
     except Exception as e:
-        return HTMLResponse(content=f"Error: {str(e)}", status_code=500)
+        error_message = f"Error: {str(e)}"
+        return templates.TemplateResponse(
+            "result.html", {"request": request, "concateddata": error_message}
+        )
