@@ -7,6 +7,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+            overflow-x: hidden; /* Hide horizontal overflow */
         }
 
         h1 {
@@ -18,6 +21,7 @@
             overflow-y: auto; /* Enable vertical scrolling */
             border: 1px solid #ccc; /* Add a border for better visualization */
             padding: 10px; /* Add some padding for better aesthetics */
+            margin-left: 10px; /* Add margin to the left for better alignment */
         }
 
         button {
@@ -37,14 +41,15 @@
 <body>
     <h1>Generated Summaries</h1>
     
-    {% for summary in summaries %}
-    <div class="summary-container">
-        <h2>Page {{ loop.index }}: Summary</h2>
-        <p>Page Content: {{ summary.pageno | safe }}</p>
-        <p>Summary: {{ summary.summary | safe }}</p>
-        <p>Created Datetime: {{ summary.createddatetime }}</p>
+    <div class="scrollable-container">
+        {% for summary in summaries %}
+        <div class="summary-container">
+            <!-- <h2>Page {{ loop.index }}: </h2> -->
+            <p>Page : {{ summary.pageno | safe }}</p>
+            <p>{{ summary.summary | safe }}</p>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
 
     <button onclick="window.print()">Print Summaries</button>
 </body>
