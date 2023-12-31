@@ -1,6 +1,7 @@
 
-from flask import Flask, render_template, request
-from werkzeug.utils import secure_filename
+from fastapi import Depends, FastAPI, Form, File, UploadFile, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 import os
 from datetime import datetime, timedelta
 from io import BytesIO
@@ -18,10 +19,9 @@ from model import *
 from tempfile import NamedTemporaryFile
 import uuid
 import pyodbc
-#import fcntl
 
-app = Flask(__name__)
-templates = "templates"
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 max_tokens = 900
 min_tokens = 10
@@ -170,23 +170,28 @@ def write_summary_to_database(request_id: str, page_num: int, page_content: str 
 
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    return render_template("index.html")
+@app.get('/')
+def index(request: Request):
+    #print("Vechalapu Rajendra Simhadri Appala Naidu.")
+    return templates.TemplateResponse("index.html", {"request": request})
 
 def generate_request_id():
     return str(uuid.uuid4())
-
-@app.route('/generate_summary', methods=['POST'])
-def generate_summary():
+@app.post('/generate_summary')
+async def generate_summary(
+    request: Request,
+    max_summary_length: int = Form(...),
+    input_choice: str = Form(None),
+    uploaded_file: UploadFile = File(...),
+    pasted_text: str = Form(None),
+    request_id: str = Depends(generate_request_id),
+):
     try:
         if check_connectivity():
-            request_id = generate_request_id()
             delete_old_summaries()  # Delete old summaries before processing
 
-            if request.form.get("input_choice") == "Upload File":
-                uploaded_file = request.files['uploaded_file']
-                file_bytes = uploaded_file.read()
+            if input_choice == "Upload File":
+                file_bytes = await uploaded_file.read()
                 file_extension = os.path.splitext(uploaded_file.filename)[-1].lower()
 
                 if file_extension == ".pdf":
@@ -200,12 +205,12 @@ def generate_summary():
                         print(f'PageNum: {page_num}')
                         for idx, nested in enumerate(nested_sentences):
                             concatenated_text = " ".join(nested)
-                            sentences = process_text_and_display(concatenated_text, max_tokens)
+                            sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                             for i, sentence in enumerate(sentences, start=1):
                                 summary += f"  {i}. {sentence} <br>"
 
-                        write_summary_to_database(request_id, page_num, page_text, summary)
+                        write_summary_to_database(request_id,page_num, page_text, summary)
 
                 elif file_extension == ".docx":
                     page_text = extract_text_from_docx(file_bytes)
@@ -214,7 +219,7 @@ def generate_summary():
 
                     for idx, nested in enumerate(nested_sentences):
                         concatenated_text = " ".join(nested)
-                        sentences = process_text_and_display(concatenated_text, max_tokens)
+                        sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                         for i, sentence in enumerate(sentences, start=1):
                             summary += f"{i}. {sentence}<br>"
@@ -230,7 +235,7 @@ def generate_summary():
 
                     for idx, nested in enumerate(nested_sentences):
                         concatenated_text = " ".join(nested)
-                        sentences = process_text_and_display(concatenated_text, max_tokens)
+                        sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                         for i, sentence in enumerate(sentences, start=1):
                             summary += f"{i}. {sentence}<br>"
@@ -240,34 +245,42 @@ def generate_summary():
                 else:
                     raise ValueError("Unsupported file format")
 
-            elif request.form.get("input_choice") == "Paste Text":
-                pasted_text = request.form.get("pasted_text")
+                # Write summary to database
+                #write_summary_to_database(request_id, "", summary)
+
+            elif input_choice == "Paste Text":
                 nested_sentences = create_nested_sentences(pasted_text, token_max_length=max_tokens)
                 summary = ""
 
                 for idx, nested in enumerate(nested_sentences):
                     concatenated_text = " ".join(nested)
-                    sentences = process_text_and_display(concatenated_text, max_tokens)
+                    sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                     for i, sentence in enumerate(sentences, start=1):
                         summary += f"  {i}. {sentence}<br><br>"
 
                 write_summary_to_database(request_id, 1, pasted_text, summary)  # Assuming single page for pasted text
 
+
+                # Write summary to database
+                #write_summary_to_database(request_id, "", summary)
+
+            # Retrieve summary from database
             # Retrieve summaries from the database
             summaries = read_summaries_from_database(request_id)
 
             if summaries:
-                return render_template(
-                    "result.html", summaries=summaries, success_message="Content processed successfully"
+                return templates.TemplateResponse(
+                    "result.html", {"request": request, "summaries": summaries, "success_message": "Content processed successfully"}
                 )
             else:
                 error_message = "No summaries found for the given request ID."
-                return render_template("result.html", error_message=error_message)
+                return templates.TemplateResponse(
+                    "result.html", {"request": request, "error_message": error_message}
+                )
 
     except Exception as e:
         error_message = f"Error: {str(e)}"
-        return render_template("result.html", error_message=error_message)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        return templates.TemplateResponse(
+            "result.html", {"request": request, "error_message": error_message}
+        )

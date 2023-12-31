@@ -178,7 +178,7 @@
                 showElement(pasteTextSection);
             }
         });
-    
+
         // Wait for the DOM to fully load before accessing the slider
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('max_summary_length_slider').addEventListener('input', function () {
@@ -186,7 +186,7 @@
                 output.textContent = this.value;
             });
         });
-    
+
         document.getElementById('summaryForm').addEventListener('submit', function (event) {
             event.preventDefault();
     
