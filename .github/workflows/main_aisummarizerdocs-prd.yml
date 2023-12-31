@@ -66,4 +66,4 @@ jobs:
         with:
           app-name: 'AISummarizerdocs-prd'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6D6BCFD64F9B4B198AFE29D2B32DE326 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7418F98B9CA74BCCAFFC069FE307419C }}
