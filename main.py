@@ -1,3 +1,4 @@
+
 from fastapi import Depends, FastAPI, Form, File, UploadFile, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -40,8 +41,11 @@ def check_connectivity():
     try:
         connection = get_connection()
         connection.close()
+
+        print("SQL Connection successful.")
         return True
-    except pyodbc.Error:
+    except pyodbc.Error as e:
+        print(f"Error connecting to the database: {e}")
         return False
 
 
@@ -140,19 +144,35 @@ def get_html_content(url):
 
 # Update write_summary_to_database function
 def write_summary_to_database(request_id: str, page_num: int, page_content: str = None, summary: str = None):
-    connection = get_connection()
-    cursor = connection.cursor()
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
 
-    cursor.execute('''
-        EXEC usp_InsertSummaryData @RequestID=?, @PageNo=?, @PageContent=?, @Summary=?
-    ''', (request_id, page_num, page_content, summary))
+        cursor.execute('''
+            EXEC usp_InsertSummaryData @RequestID=?, @PageNo=?, @PageContent=?, @Summary=?
+        ''', (request_id, page_num, page_content, summary))
 
-    connection.commit()
-    connection.close()
+        connection.commit()
+    except pyodbc.Error as e:
+        # Handle specific database-related errors
+        print(f"Database error: {e}")
+        # Optionally, log the error using a logging framework
+
+    except Exception as e:
+        # Handle other types of exceptions
+        print(f"An error occurred: {e}")
+        # Optionally, log the error using a logging framework
+
+    finally:
+        # Close the connection in a finally block to ensure it happens regardless of exceptions
+        if connection:
+            connection.close()
+
 
 
 @app.get('/')
 def index(request: Request):
+    #print("Vechalapu Rajendra Simhadri Appala Naidu.")
     return templates.TemplateResponse("index.html", {"request": request})
 
 def generate_request_id():
@@ -177,10 +197,12 @@ async def generate_summary(
                 if file_extension == ".pdf":
                     page_texts = extract_page_pdf_text(file_bytes)
                     
+                    print(f'Raj: Total Pages: {len(page_texts)}')
+
                     for page_num, page_text in enumerate(page_texts, start=1):
                         nested_sentences = create_nested_sentences(page_text, token_max_length=900)
                         summary = ""
-
+                        print(f'PageNum: {page_num}')
                         for idx, nested in enumerate(nested_sentences):
                             concatenated_text = " ".join(nested)
                             sentences = process_text_and_display(concatenated_text, max_summary_length)
