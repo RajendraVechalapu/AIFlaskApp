@@ -3,7 +3,7 @@
 #gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
 
 #recommend- bard
-#gunicorn --bind=0.0.0.0 --timeout 600 main:app
+gunicorn --bind=0.0.0.0 --timeout 600 main:app --reload
 #recomend - chatgpt
 #gunicorn -w 4 -k gevent -b 0.0.0.0:$PORT main:app
 
@@ -41,4 +41,4 @@ $ export FLASK_APP=app.py   or in windows $env:FLASK_APP = "app.py"
 $ flask run
 
 $env:FLASK_APP = "app.py"
-flask run
+flask run --reload
