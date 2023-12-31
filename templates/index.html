@@ -11,6 +11,9 @@
             padding: 0;
             background-color: #f8f8f8;
             color: #333;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         header {
@@ -19,25 +22,29 @@
             text-align: center;
             padding: 0.5em;
             font-size: 1em;
+            flex: 5%;
         }
 
         main {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: white;
+            flex: 70%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: top;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
         form {
+            width: 80%;
             display: flex;
             flex-direction: column;
+            align-items: flex-start;
         }
 
         label {
             margin-top: 10px;
             font-size: 1.1em;
+            vertical-align: top;
         }
 
         select, textarea, input {
@@ -46,6 +53,29 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 1em;
+            width: 20%;
+            box-sizing: border-box;
+        }
+
+        .slider-group {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            width: 40%;
+        }
+
+        .slider-group label {
+            margin-right: 10px;
+            flex: 0 0 30%; /* Adjusted width */
+        }
+
+        .slider-group input {
+            flex: 1; /* Take remaining width */
+        }
+
+        .slider-group output {
+            margin-left: 10px;
+            white-space: nowrap;
         }
 
         button {
@@ -69,6 +99,7 @@
         #resultSection {
             display: none;
             margin-top: 20px;
+            width: 100%;
         }
 
         footer {
@@ -77,6 +108,7 @@
             text-align: center;
             padding: 1em;
             font-size: 0.9em;
+            flex: 5%;            
         }
     </style>
 </head>
@@ -85,36 +117,42 @@
         <h1>AI Text Summary Generator (Trial)</h1>
         <p>AI-enabled summarizer for creating summaries from plain text, PDF, DOCX, or text files.</p>
     </header>
-
     <main>
         <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
-            <label for="input_choice">Choose an input option:</label>
-            <select id="input_choice" name="input_choice">
-                <option value="Paste Text">Paste Text</option>
-                <option value="Upload File">Upload File</option>
-            </select>
+           
 
-            <div id="paste_text_section">
+            <div id="input_choice_section" style="margin-top: 10px; width: 60%; vertical-align: top;">
+                <label for="input_choice">Choose an input option:</label>
+                <select id="input_choice" name="input_choice">
+                    <option value="Paste Text">Paste Text</option>
+                    <option value="Upload File">Upload File</option>
+                </select>
+            </div>
+
+            <div id="paste_text_section" style="margin-top: 10px; width: 60%; vertical-align: top;">
                 <label for="pasted_text">Paste your text:</label>
-                <textarea name="pasted_text" rows="4" cols="50"></textarea>
+                <textarea name="pasted_text" rows="4" style="width: 100%;"></textarea>
             </div>
 
-            <div id="upload_file_section" style="display: none;">
+            <div id="upload_file_section" style="display: none; margin-top: 10px; width: 50%;">
                 <label for="uploaded_file">Upload a file:</label>
-                <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
+                <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt" style="width: 50%;">
             </div>
 
-            <label for="max_summary_length">Maximum Summary Length:</label>
-            <input type="number" name="max_summary_length" value="400" required>
-
-            <button type="submit">Generate Summary</button>
+            <div class="slider-group" style="margin-top: 10px; display: flex; align-items: center;">
+                <label style="margin-right: 10px;">Maximum Summary Length:</label>
+                <input type="range" id="max_summary_length_slider" name="max_summary_length" min="300" max="500" step="100" value="400">
+                <output for="max_summary_length_slider" style="margin-left: 10px;">400</output>
+            </div>
+            
+            <button type="submit" style="margin-top: 15px;">Generate Summary</button>
         </form>
 
         <div id="loadingMessage">Please wait...</div>
         <div id="resultSection" style="display: none;">
             <div id="summaryContent">
                 <!-- Placeholder for the summary content -->
-                {{ summary_content | safe }}
+                
             </div>
         </div>
     </main>
@@ -139,7 +177,15 @@
                 showElement(pasteTextSection);
             }
         });
-    
+
+        // Wait for the DOM to fully load before accessing the slider
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('max_summary_length_slider').addEventListener('input', function () {
+                var output = document.querySelector('output[for="max_summary_length_slider"]');
+                output.textContent = this.value;
+            });
+        });
+
         document.getElementById('summaryForm').addEventListener('submit', function (event) {
             event.preventDefault();
     
@@ -185,6 +231,5 @@
             }
         }
     </script>
-    
 </body>
 </html>
