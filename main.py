@@ -18,6 +18,7 @@ from model import *
 from tempfile import NamedTemporaryFile
 import uuid
 import pyodbc
+#import fcntl
 
 app = Flask(__name__)
 templates = "templates"
