@@ -26,13 +26,26 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .error-message {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Generated Summary</h1>
-    <div class="scrollable-container">
-        {{ concateddata | safe }}
+    <h1>Generated Summaries</h1>
+    
+    {% for summary in summaries %}
+    <div class="summary-container">
+        <h2>Page {{ loop.index }}: Summary</h2>
+        <p>Page Content: {{ summary.pageno | safe }}</p>
+        <p>Summary: {{ summary.summary | safe }}</p>
+        <p>Created Datetime: {{ summary.createddatetime }}</p>
     </div>
-    <button onclick="window.print()">Print Summary</button>
+    {% endfor %}
+
+    <button onclick="window.print()">Print Summaries</button>
 </body>
 </html>
