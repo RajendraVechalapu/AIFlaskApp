@@ -222,7 +222,9 @@ async def generate_summary(
                         sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                         for i, sentence in enumerate(sentences, start=1):
-                            summary += f"{i}. {sentence}\n"
+                            summary += f"{i}. {sentence}<br>"
+
+                    write_summary_to_database(request_id, 1, page_text, summary)  # Assuming single page for DOCX
 
                 elif file_extension == ".txt":
                     file_encoding = chardet.detect(file_bytes)['encoding'] or 'utf-8'
@@ -236,7 +238,9 @@ async def generate_summary(
                         sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                         for i, sentence in enumerate(sentences, start=1):
-                            summary += f"{i}. {sentence}\n"
+                            summary += f"{i}. {sentence}<br>"
+
+                    write_summary_to_database(request_id, 1, text, summary)  # Assuming single page for TXT
 
                 else:
                     raise ValueError("Unsupported file format")
@@ -253,7 +257,10 @@ async def generate_summary(
                     sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                     for i, sentence in enumerate(sentences, start=1):
-                        summary += f"  {i}. {sentence}\n"
+                        summary += f"  {i}. {sentence}<br>"
+
+                write_summary_to_database(request_id, 1, pasted_text, summary)  # Assuming single page for pasted text
+
 
                 # Write summary to database
                 #write_summary_to_database(request_id, "", summary)
