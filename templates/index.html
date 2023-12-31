@@ -5,80 +5,150 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Text Summary Generator</title>
     <style>
-        .hidden {
-            display: none;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        header {
+            background-color: #0078d4;
+            color: white;
+            text-align: center;
+            padding: 0.5em;
+            font-size: 1em;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+
+        select, textarea, input {
+            margin-top: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
         }
 
         #loadingMessage {
             display: none;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        #resultSection {
+            display: none;
+            margin-top: 20px;
+        }
+
+        footer {
+            background-color: #0078d4;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to AI Text Summary Generator</h1>
-    <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
-        <label for="input_choice">Choose an input option:</label>
-        <select id="input_choice" name="input_choice">
-            <option value="Paste Text">Paste Text</option>
-            <option value="Upload File">Upload File</option>
-        </select>
-        <br>
+    <header>
+        <h1>AI Text Summary Generator (Trial)</h1>
+        <p>AI-enabled summarizer for creating summaries from plain text, PDF, DOCX, or text files.</p>
+    </header>
 
-        <!-- Paste Text Section -->
-        <div id="paste_text_section">
-            <label for="pasted_text">Paste your text:</label>
-            <textarea name="pasted_text" rows="4" cols="50"></textarea>
-            <br>
+    <main>
+        <form id="summaryForm" action="/generate_summary" method="post" enctype="multipart/form-data">
+            <label for="input_choice">Choose an input option:</label>
+            <select id="input_choice" name="input_choice">
+                <option value="Paste Text">Paste Text</option>
+                <option value="Upload File">Upload File</option>
+            </select>
+
+            <div id="paste_text_section">
+                <label for="pasted_text">Paste your text:</label>
+                <textarea name="pasted_text" rows="4" cols="50"></textarea>
+            </div>
+
+            <div id="upload_file_section" style="display: none;">
+                <label for="uploaded_file">Upload a file:</label>
+                <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
+            </div>
+
+            <label for="max_summary_length">Maximum Summary Length:</label>
+            <input type="number" name="max_summary_length" value="400" required>
+
+            <button type="submit">Generate Summary</button>
+        </form>
+
+        <div id="loadingMessage">Please wait...</div>
+        <div id="resultSection" style="display: none;">
+            <div id="summaryContent">
+                <!-- Placeholder for the summary content -->
+                {{ summary_content | safe }}
+            </div>
         </div>
-
-        <!-- Upload File Section -->
-        <div id="upload_file_section" class="hidden">
-            <label for="uploaded_file">Upload a file:</label>
-            <input type="file" name="uploaded_file" accept=".pdf, .docx, .txt">
-            <br>
-        </div>
-
-        <!-- Other form fields and input elements can be added here -->
-
-        <label for="max_summary_length">Maximum Summary Length:</label>
-        <input type="number" name="max_summary_length" value="500" required>
-        <br>
-
-        <button type="submit">Generate Summary</button>
-    </form>
-
-    <div id="loadingMessage">Please wait...</div>
-    <div id="resultSection" class="hidden">
-        <h2>Summary:</h2>
-        <div id="summaryContent">
-            <!-- Placeholder for the summary content -->
-            {{ summary_content | safe }}
-        </div>
-    </div>
+    </main>
+    
+    <footer>
+        <p>
+            © 2024 SimhAI. All rights reserved. | Data is not stored or accessed and is retained for 5-10 minutes for AI model processing. | Please reach vrsanaidu@gmail.com for any questions.
+        </p>
+    </footer>
 
     <script>
         document.getElementById('input_choice').addEventListener('change', function () {
             var uploadFileSection = document.getElementById('upload_file_section');
             var pasteTextSection = document.getElementById('paste_text_section');
-
+    
+            // Toggle visibility based on the selected input option
             if (this.value === 'Upload File') {
-                uploadFileSection.classList.remove('hidden');
-                pasteTextSection.classList.add('hidden');
+                showElement(uploadFileSection);
+                hideElement(pasteTextSection);
             } else if (this.value === 'Paste Text') {
-                uploadFileSection.classList.add('hidden');
-                pasteTextSection.classList.remove('hidden');
+                hideElement(uploadFileSection);
+                showElement(pasteTextSection);
             }
         });
-
+    
         document.getElementById('summaryForm').addEventListener('submit', function (event) {
             event.preventDefault();
-
+    
             // Display "Please wait..." message
-            document.getElementById('loadingMessage').style.display = 'block';
-
+            showElement('loadingMessage');
+    
             // Prepare form data
             var formData = new FormData(this);
-
+    
             // Make AJAX/fetch request
             fetch(this.action, {
                 method: this.method,
@@ -87,17 +157,34 @@
             .then(response => response.text())
             .then(data => {
                 // Hide "Please wait..." message
-                document.getElementById('loadingMessage').style.display = 'none';
-
+                hideElement('loadingMessage');
+    
                 // Display result in the 'resultSection' div
                 document.getElementById('summaryContent').innerHTML = data;
-                document.getElementById('resultSection').classList.remove('hidden');
+                showElement('resultSection');
             })
             .catch(error => {
                 // Handle errors
                 console.error('Error:', error);
             });
         });
+    
+        // Function to show an element
+        function showElement(elementId) {
+            var element = (typeof elementId === 'string') ? document.getElementById(elementId) : elementId;
+            if (element) {
+                element.style.display = 'block';
+            }
+        }
+    
+        // Function to hide an element
+        function hideElement(elementId) {
+            var element = (typeof elementId === 'string') ? document.getElementById(elementId) : elementId;
+            if (element) {
+                element.style.display = 'none';
+            }
+        }
     </script>
+    
 </body>
 </html>

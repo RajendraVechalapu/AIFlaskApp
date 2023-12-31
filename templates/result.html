@@ -39,10 +39,10 @@
     
     {% for summary in summaries %}
     <div class="summary-container">
-        <h2>Page {{ loop.index }}: Summary</h2>
-        <p>Page Content: {{ summary.pageno | safe }}</p>
-        <p>Summary: {{ summary.summary | safe }}</p>
-        <p>Created Datetime: {{ summary.createddatetime }}</p>
+        <!-- <h2>Page {{ loop.index }}: </h2> -->
+        <p>Page : {{ summary.pageno | safe }}</p>
+        <p>{{ summary.summary | safe }}</p>
+        
     </div>
     {% endfor %}
 

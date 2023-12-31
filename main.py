@@ -257,7 +257,7 @@ async def generate_summary(
                     sentences = process_text_and_display(concatenated_text, max_summary_length)
 
                     for i, sentence in enumerate(sentences, start=1):
-                        summary += f"  {i}. {sentence}<br>"
+                        summary += f"  {i}. {sentence}<br><br>"
 
                 write_summary_to_database(request_id, 1, pasted_text, summary)  # Assuming single page for pasted text
 
