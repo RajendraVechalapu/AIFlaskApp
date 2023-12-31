@@ -1,3 +1,6 @@
+at deployment 
+#gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app
+
 Test and Demo
 #fastapi
 #uvicorn main:app --host 127.0.0.1 --port 8000 --reload
