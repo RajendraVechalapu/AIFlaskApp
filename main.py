@@ -53,7 +53,7 @@ def check_connectivity():
 def read_summaries_from_database(request_id: str):
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute('SELECT PageNo, Summary, CreatedDateTime FROM tblSummary WHERE RequestID = ?', (request_id,))
+    cursor.execute('SELECT PageNo, Summary, CreatedDateTime FROM tblSummary WHERE RequestID = ?  order by cast(PageNo as int) asc', (request_id,))
     rows = cursor.fetchall()
     connection.close()
 
@@ -235,7 +235,7 @@ def generate_summary():
                         for i, sentence in enumerate(sentences, start=1):
                             summary += f"{i}. {sentence}<br>"
 
-                    write_summary_to_database(request_id, 1, text, summary)  # Assuming single page for TXT
+                        write_summary_to_database(request_id, 1, concatenated_text, summary)  # Assuming single page for TXT
 
                 else:
                     raise ValueError("Unsupported file format")
