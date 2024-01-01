@@ -37,14 +37,24 @@
             margin-top: 20px;
         }
     </style>
+  
 </head>
 <body>
     <h1>Generated Summaries</h1>
     
+    <!-- <h1>Download Your File</h1> -->
+    
+    <!-- Simplified download link -->
+    
+    <!-- <a href="/download?file_path=generatedfiles/{{ request_id }}_summary.pptx" download="Text_Summary_Presentation.pptx">
+        Download PowerPoint Presentation</a> -->
+
+    <!-- Replace the anchor tag with a button -->
+    <button onclick="window.location.href='/download?file_path=generatedfiles/{{ request_id }}_summary.pptx'">Download PPTX File</button>
+
     <div class="scrollable-container">
         {{ html_summary | safe }}
     </div>
-
-    <button onclick="window.print()">Print Summaries</button>
+    
 </body>
 </html>
