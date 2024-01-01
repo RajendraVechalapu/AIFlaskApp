@@ -53,16 +53,19 @@ def check_connectivity():
 def read_summaries_from_database(request_id: str):
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute('SELECT PageNo, Summary, CreatedDateTime FROM tblSummary WHERE RequestID = ?  order by cast(PageNo as int) asc', (request_id,))
-    rows = cursor.fetchall()
-    connection.close()
 
-    summaries = []
-    for row in rows:
-        PageNo, summary, createddatetime = row
-        summaries.append({"pageno": PageNo, "summary": summary, "createddatetime": createddatetime})
-
-    return summaries
+    try:
+        cursor.execute("EXEC usp_GetSummaries ?", (request_id,))
+        html_summary = cursor.fetchone()[0]
+        connection.commit()
+        success_message = "Content processed successfully"
+        return render_template("result.html", html_summary=html_summary, success_message=success_message)
+    except Exception as e:
+        connection.rollback()
+        error_message = f"Error retrieving summaries: {str(e)}"
+        return render_template("result.html", error_message=error_message)
+    finally:
+        connection.close()
 
 def delete_old_summaries():
     connection = get_connection()
@@ -255,15 +258,28 @@ def generate_summary():
                 write_summary_to_database(request_id, 1, pasted_text, summary)  # Assuming single page for pasted text
 
             # Retrieve summaries from the database
-            summaries = read_summaries_from_database(request_id)
+            return read_summaries_from_database(request_id)
 
-            if summaries:
-                return render_template(
-                    "result.html", summaries=summaries, success_message="Content processed successfully"
-                )
-            else:
-                error_message = "No summaries found for the given request ID."
-                return render_template("result.html", error_message=error_message)
+            #summaries = read_summaries_from_database(request_id)
+
+            # if summaries:
+            #     return render_template(
+            #         "result.html", summaries=summaries, success_message="Content processed successfully"
+            #     )
+            # else:
+            #     error_message = "No summaries found for the given request ID."
+            #     return render_template("result.html", error_message=error_message)
+                
+            # Retrieve summaries from the database and render template
+            # return render_template(
+            #     "result.html",
+            #     summaries=read_summaries_from_database(request_id),
+            #     success_message="Content processed successfully"
+            # ) if read_summaries_from_database(request_id) else render_template(
+            #     "result.html",
+            #     error_message="No summaries found for the given request ID."
+            # )
+
 
     except Exception as e:
         error_message = f"Error: {str(e)}"
