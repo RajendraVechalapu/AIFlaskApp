@@ -42,13 +42,7 @@
     <h1>Generated Summaries</h1>
     
     <div class="scrollable-container">
-        {% for summary in summaries %}
-        <div class="summary-container">
-            <!-- <h2>Page {{ loop.index }}: </h2> -->
-            <p>Page : {{ summary.pageno | safe }}</p>
-            <p>{{ summary.summary | safe }}</p>
-        </div>
-        {% endfor %}
+        {{ html_summary | safe }}
     </div>
 
     <button onclick="window.print()">Print Summaries</button>
