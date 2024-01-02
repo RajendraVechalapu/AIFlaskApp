@@ -38,6 +38,9 @@ venv\Scripts\Activate or
 $ source venv/bin/activate
 $ pip install -r requirements.txt
 $ export FLASK_APP=app.py   or in windows $env:FLASK_APP = "app.py"
+#When you set FLASK_ENV=development
+FLASK_ENV=development flask run
+
 $ flask run
 
 $env:FLASK_APP = "app.py"
